@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quién no me sigue</title>
+<style>
+:root{
+  --bg:#f5f5f7;--card:#ffffff;--text:#1d1d1f;--muted:#6e6e73;--line:rgba(0,0,0,.08);
+  --blue:#0071e3;--blue-press:#0062c4;--seg:rgba(118,118,128,.12);--green:#30a14e;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#000;--card:#1c1c1e;--text:#f5f5f7;--muted:#98989d;--line:rgba(255,255,255,.12);--blue:#2997ff;--blue-press:#0a84ff;--seg:rgba(118,118,128,.24);--green:#32d74b}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);-webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.wrap{max-width:760px;margin:0 auto;padding:56px 20px 80px}
+h1{font-size:clamp(34px,6vw,52px);font-weight:700;letter-spacing:-.03em;line-height:1.05;margin:0 0 12px}
+.sub{font-size:19px;line-height:1.4;color:var(--muted);margin:0 0 36px;max-width:34em}
+.drops{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.drops{grid-template-columns:1fr}}
+.drop{position:relative;background:var(--card);border-radius:22px;padding:24px;min-height:150px;display:flex;flex-direction:column;
+  justify-content:space-between;cursor:pointer;border:1.5px dashed var(--line);transition:border-color .2s,transform .2s,background .2s}
+.drop:hover,.drop.over{border-color:var(--blue);transform:scale(1.012)}
+.drop:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.drop.ok{border-style:solid;border-color:transparent}
+.drop h2{margin:0;font-size:21px;font-weight:600;letter-spacing:-.01em}
+.drop p{margin:6px 0 0;font-size:15px;color:var(--muted);line-height:1.35}
+.drop .tag{font-size:15px;color:var(--blue);font-weight:500}
+.drop.ok .tag{color:var(--green)}
+.drop input{display:none}
+.err{margin:16px 4px 0;color:#ff453a;font-size:15px;min-height:20px}
+#results{display:none;margin-top:36px}
+.hero{background:var(--card);border-radius:26px;padding:30px 26px;margin-bottom:18px}
+.big{font-size:clamp(64px,16vw,104px);font-weight:700;letter-spacing:-.05em;line-height:1}
+.hero p{margin:8px 0 0;font-size:19px;color:var(--muted)}
+.stats{display:flex;gap:28px;margin-top:22px;flex-wrap:wrap}
+.stats b{display:block;font-size:24px;font-weight:600;letter-spacing:-.02em}
+.stats span{font-size:14px;color:var(--muted)}
+.seg{display:flex;background:var(--seg);border-radius:11px;padding:2px;margin-bottom:14px}
+.seg button{flex:1;border:0;background:transparent;color:var(--text);font:500 14px var(--font);padding:9px 6px;border-radius:9px;cursor:pointer;
+  transition:background .2s,box-shadow .2s}
+.seg button[aria-selected=true]{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.seg button:focus-visible{outline:3px solid var(--blue)}
+.tools{display:flex;gap:10px;margin-bottom:14px}
+.search{flex:1;border:0;background:var(--seg);border-radius:11px;padding:11px 14px;font:16px var(--font);color:var(--text)}
+.search:focus{outline:3px solid var(--blue)}
+.btn{border:0;background:var(--blue);color:#fff;font:500 15px var(--font);padding:0 18px;border-radius:980px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--blue-press)}
+.btn:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.list{background:var(--card);border-radius:22px;overflow:hidden}
+.row{display:flex;align-items:center;gap:14px;padding:12px 18px;border-top:1px solid var(--line);text-decoration:none;color:inherit}
+.row:first-child{border-top:0}
+.row:hover{background:var(--seg)}
+.av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:600;font-size:16px}
+.nm{flex:1;min-width:0}
+.nm b{display:block;font-weight:500;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm span{font-size:13px;color:var(--muted)}
+.go{color:var(--blue);font-size:15px}
+.empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:16px}
+.more{display:block;width:100%;border:0;border-top:1px solid var(--line);background:none;color:var(--blue);font:500 16px var(--font);padding:16px;cursor:pointer}
+.foot{margin-top:40px;font-size:13px;color:var(--muted);line-height:1.5}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Quién no te sigue de vuelta.</h1>
+  <p class="sub">Sube los dos archivos de tu descarga de Instagram y compáralos al instante. Todo ocurre en tu navegador.</p>
+
+  <section class="drops" aria-label="Archivos">
+    <label class="drop" id="dz-followers" tabindex="0">
+      <div><h2>Seguidores</h2><p>followers_1.html</p></div>
+      <span class="tag">Elegir o soltar archivo</span>
+      <input type="file" accept=".html,text/html" data-kind="followers">
+    </label>
+    <label class="drop" id="dz-following" tabindex="0">
+      <div><h2>Seguidos</h2><p>following.html</p></div>
+      <span class="tag">Elegir o soltar archivo</span>
+      <input type="file" accept=".html,text/html" data-kind="following">
+    </label>
+  </section>
+  <div class="err" id="err" role="alert"></div>
+
+  <section id="results" aria-live="polite">
+    <div class="hero">
+      <div class="big" id="bigNum">0</div>
+      <p>personas que sigues y no te siguen.</p>
+      <div class="stats">
+        <div><b id="sFollowers">0</b><span>seguidores</span></div>
+        <div><b id="sFollowing">0</b><span>seguidos</span></div>
+        <div><b id="sMutual">0</b><span>mutuos</span></div>
+      </div>
+    </div>
+
+    <div class="seg" role="tablist">
+      <button role="tab" data-tab="notback" aria-selected="true">No te siguen</button>
+      <button role="tab" data-tab="fans" aria-selected="false">No sigues</button>
+      <button role="tab" data-tab="mutual" aria-selected="false">Mutuos</button>
+    </div>
+    <div class="tools">
+      <input class="search" id="q" type="search" placeholder="Buscar usuario" aria-label="Buscar usuario" autocomplete="off">
+      <button class="btn" id="csv">Exportar CSV</button>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <p class="foot">En Instagram: Configuración › Centro de cuentas › Tu información y permisos › Descargar tu información, en formato HTML. Los archivos no salen de tu dispositivo.</p>
+</main>
+
+<script>
+(function(){
+  var data={followers:null,following:null}, tab='notback', shown=100, PAGE=100;
+  var $=function(s){return document.querySelector(s)};
+
+  // Extrae usuario y fecha de cada enlace de perfil (maneja /usuario y /_u/usuario)
+  function parse(html){
+    var doc=new DOMParser().parseFromString(html,'text/html'), map=new Map();
+    doc.querySelectorAll('a[href*="instagram.com/"]').forEach(function(a){
+      var m=a.getAttribute('href').match(/instagram\.com\/(?:_u\/)?([^\/?#]+)/i);
+      if(!m) return;
+      var u=m[1].toLowerCase();
+      var dateEl=a.parentElement&&a.parentElement.nextElementSibling;
+      map.set(u,{user:m[1],date:dateEl?dateEl.textContent.trim():''});
+    });
+    return map;
+  }
+
+  function load(kind,file){
+    var r=new FileReader();
+    r.onload=function(){
+      var map=parse(r.result), dz=$('#dz-'+kind);
+      if(!map.size){ $('#err').textContent='No encontré usuarios en "'+file.name+'". Revisa que sea el archivo HTML correcto.'; return; }
+      $('#err').textContent='';
+      data[kind]=map; dz.classList.add('ok');
+      dz.querySelector('.tag').textContent='✓ '+map.size.toLocaleString('es')+' perfiles';
+      if(data.followers&&data.following) compute();
+    };
+    r.readAsText(file);
+  }
+
+  document.querySelectorAll('.drop').forEach(function(dz){
+    var inp=dz.querySelector('input'), kind=inp.dataset.kind;
+    inp.addEventListener('change',function(){ if(inp.files[0]) load(kind,inp.files[0]); });
+    dz.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){e.preventDefault();inp.click();} });
+    ['dragenter','dragover'].forEach(function(ev){dz.addEventListener(ev,function(e){e.preventDefault();dz.classList.add('over');});});
+    ['dragleave','drop'].forEach(function(ev){dz.addEventListener(ev,function(e){e.preventDefault();dz.classList.remove('over');});});
+    dz.addEventListener('drop',function(e){ if(e.dataTransfer.files[0]) load(kind,e.dataTransfer.files[0]); });
+  });
+
+  var sets={};
+  function compute(){
+    var f=data.followers, g=data.following;
+    sets.notback=[...g].filter(function(e){return !f.has(e[0]);}).map(function(e){return e[1];});
+    sets.fans=[...f].filter(function(e){return !g.has(e[0]);}).map(function(e){return e[1];});
+    sets.mutual=[...g].filter(function(e){return f.has(e[0]);}).map(function(e){return e[1];});
+    $('#bigNum').textContent=sets.notback.length.toLocaleString('es');
+    $('#sFollowers').textContent=f.size.toLocaleString('es');
+    $('#sFollowing').textContent=g.size.toLocaleString('es');
+    $('#sMutual').textContent=sets.mutual.length.toLocaleString('es');
+    $('#results').style.display='block';
+    render();
+    $('#results').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});
+  }
+
+  function color(s){ var h=0; for(var i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))%360; return 'hsl('+h+',55%,52%)'; }
+  function esc(s){ return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  function current(){
+    var q=$('#q').value.trim().toLowerCase();
+    return (sets[tab]||[]).filter(function(x){return !q||x.user.toLowerCase().indexOf(q)>-1;});
+  }
+  function render(){
+    var items=current(), list=$('#list'), label=tab==='fans'?'Te sigue desde ':'Lo sigues desde ';
+    if(!items.length){ list.innerHTML='<div class="empty">'+(sets[tab]&&sets[tab].length?'Sin coincidencias.':'No hay perfiles en esta lista.')+'</div>'; return; }
+    var html=items.slice(0,shown).map(function(x){
+      return '<a class="row" href="https://www.instagram.com/'+encodeURIComponent(x.user)+'" target="_blank" rel="noopener noreferrer">'+
+        '<div class="av" style="background:'+color(x.user)+'">'+esc(x.user.charAt(0).toUpperCase())+'</div>'+
+        '<div class="nm"><b>'+esc(x.user)+'</b><span>'+(x.date?label+esc(x.date):'')+'</span></div>'+
+        '<span class="go">Abrir</span></a>';
+    }).join('');
+    if(items.length>shown) html+='<button class="more" id="more">Mostrar más ('+(items.length-shown).toLocaleString('es')+')</button>';
+    list.innerHTML=html;
+    var more=$('#more'); if(more) more.onclick=function(){shown+=PAGE;render();};
+  }
+
+  document.querySelectorAll('.seg button').forEach(function(b){
+    b.addEventListener('click',function(){
+      tab=b.dataset.tab; shown=PAGE;
+      document.querySelectorAll('.seg button').forEach(function(x){x.setAttribute('aria-selected',x===b);});
+      render();
+    });
+  });
+  $('#q').addEventListener('input',function(){shown=PAGE;render();});
+
+  $('#csv').addEventListener('click',function(){
+    var rows=['usuario,fecha,perfil'].concat(current().map(function(x){
+      return [x.user,'"'+x.date+'"','https://www.instagram.com/'+x.user].join(',');
+    }));
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob(['\ufeff'+rows.join('\n')],{type:'text/csv;charset=utf-8'}));
+    a.download=tab+'.csv'; a.click(); URL.revokeObjectURL(a.href);
+  });
+})();
+</script>
+</body>
+</html>
